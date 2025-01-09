@@ -29,13 +29,11 @@ if st.button("Get Weather"):
                 st.write(f"Conditions: {description}")
 
                 # Save to S3
-
-
-    #               success = dashboard.save_to_s3(weather_data, city)
-    #                if success:
-    #                    print(f"Weather data for {city} saved to S3!")
-    #            else:
-    #                print(f"Failed to fetch weather data for {city}")
+                success = dashboard.save_to_s3(weather_data, city)
+                if success:
+                        print(f"Weather data for {city} saved to S3!")
+                else:
+                    print(f"Failed to fetch weather data for {city}")
 
     if __name__ == "__main__":
         main()
