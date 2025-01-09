@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+
 class WeatherDashboard:
     def __init__(self):
         self.api_key = os.getenv('OPENWEATHER_API_KEY')
@@ -36,7 +37,7 @@ class WeatherDashboard:
             "appid": self.api_key,
             "units": "imperial"
         }
-        
+
         try:
             response = requests.get(base_url, params=params)
             response.raise_for_status()
@@ -49,10 +50,10 @@ class WeatherDashboard:
         """Save weather data to S3 bucket"""
         if not weather_data:
             return False
-            
+
         timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
         file_name = f"weather-data/{city}-{timestamp}.json"
-        
+
         try:
             weather_data['timestamp'] = timestamp
             self.s3_client.put_object(
@@ -67,34 +68,4 @@ class WeatherDashboard:
             print(f"Error saving to S3: {e}")
             return False
 
-def main():
-    dashboard = WeatherDashboard()
-    
-    # Create bucket if needed
-    dashboard.create_bucket_if_not_exists()
-    
-    cities = ["Philadelphia", "Seattle", "New York", "Kansas City"]
-    
-    for city in cities:
-        print(f"\nFetching weather for {city}...")
-        weather_data = dashboard.fetch_weather(city)
-        if weather_data:
-            temp = weather_data['main']['temp']
-            feels_like = weather_data['main']['feels_like']
-            humidity = weather_data['main']['humidity']
-            description = weather_data['weather'][0]['description']
-            
-            print(f"Temperature: {temp}°F")
-            print(f"Feels like: {feels_like}°F")
-            print(f"Humidity: {humidity}%")
-            print(f"Conditions: {description}")
-            
-            # Save to S3
-            success = dashboard.save_to_s3(weather_data, city)
-            if success:
-                print(f"Weather data for {city} saved to S3!")
-        else:
-            print(f"Failed to fetch weather data for {city}")
 
-if __name__ == "__main__":
-    main()
